@@ -11,7 +11,7 @@
 
 */
 
-program define Wilcoxon2, eclass 
+program define wilcoxon2, eclass 
     version 13
 
     /* parse syntax */
