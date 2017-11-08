@@ -14,6 +14,7 @@ program define new_install
     capture ssc install carryforward
     capture ssc install cem
     capture ssc install dropmiss
+    capture ssc install egenmore
     capture ssc install estout
     capture ssc install ftools
     capture ssc install freduse
