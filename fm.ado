@@ -75,13 +75,11 @@ program define fm, eclass
 
     /* force regular time if option force specified */
     if ("`force'" == "force" ) {
-        tempvar forcetime
-        quietly generate `forcetime' = _n
-        quietly tsset `forcetime'
+        quietly drop `time'
+        quietly drop if missing(_b_cons)
+        quietly generate `time' = _n
     }
-    else {
-        quietly tsset `time'
-    }
+    quietly tsset `time'
 
     /* first independent variables */
     foreach x of local X {
