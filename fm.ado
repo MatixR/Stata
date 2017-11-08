@@ -1,11 +1,12 @@
-*! Date     : 2017-09-07
-*! version  : 0.9
+*! Date     : 2017-11-08
+*! version  : 0.10
 *! Author   : Richard Herron
 *! Email    : richard.c.herron@gmail.com
 
 *! takes coefficients from -statsby- and time/lags for Newey-West SEs
 
 /* 
+2017-11-08 v0.10 added force option to force irregular time series
 2017-09-07 v0.9 allow abbreviation of options
 2017-06-30 v0.8 simplified and removed marginal effects
 2017-06-30 v0.7 marginal effects use sample bhat
@@ -20,7 +21,7 @@
 program define fm, eclass 
     version 13
 
-    syntax varlist [if] [in] [ , Estimator(string) Lags(integer 0) Options(string) ]
+    syntax varlist [if] [in] [ , Estimator(string) Lags(integer 0) Options(string) Force ]
     marksample touse
     tempname beta VCV
     
@@ -71,8 +72,18 @@ program define fm, eclass
     }
 
     /* estimate time-series means and standard errors */
+
+    /* force regular time if option force specified */
+    if ("`force'" == "force" ) {
+        tempvar forcetime
+        quietly generate `forcetime' = _n
+        quietly tsset `forcetime'
+    }
+    else {
+        quietly tsset `time'
+    }
+
     /* first independent variables */
-    quietly tsset `time'
     foreach x of local X {
         quietly newey _b_`x', lag(`lags')
         matrix `beta' = nullmat(`beta'), e(b)
