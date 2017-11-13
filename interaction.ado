@@ -8,7 +8,7 @@ program define interaction
     local labright : variable label `right'
 
     generate `generate' = `left' * `right'
-    label variable `generate' "`lableft' * `labright'"
+    label variable `generate' "`lableft' \(\times\) `labright'"
 
     end
 
