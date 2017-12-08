@@ -1,11 +1,12 @@
-*! Date     : 2017-11-08
-*! version  : 0.10
+*! Date     : 2017-12-08
+*! version  : 0.11
 *! Author   : Richard Herron
 *! Email    : richard.c.herron@gmail.com
 
 *! takes coefficients from -statsby- and time/lags for Newey-West SEs
 
 /* 
+2017-12-08 v0.11 after preserve, aggressively subset for speed
 2017-11-08 v0.10 added force option to force irregular time series
 2017-09-07 v0.9 allow abbreviation of options
 2017-06-30 v0.8 simplified and removed marginal effects
@@ -41,8 +42,19 @@ program define fm, eclass
     macro shift 1
     local X `*'
 
-    /* estimate first-stage (cross-sectional) coefficients */
+    /* subset data for faster cross-sectional regressions */
     preserve
+    keep `time' `y' `X' `touse'
+    quietly drop if missing(`time', `y')
+    if ("`X'" != "") {
+        foreach x of local X {
+            quietly drop if missing(`x')
+        }
+    }
+
+    /* describe */
+
+    /* estimate first-stage (cross-sectional) coefficients */
     if inlist("`estimator'", "regress", "areg") {
         quietly statsby _b e(N) e(r2) if `touse', ///
             by(`time') clear ///
@@ -83,14 +95,24 @@ program define fm, eclass
 
     /* first independent variables */
     foreach x of local X {
-        quietly newey _b_`x', lag(`lags')
+        if (`lags' > 0) {
+            quietly newey _b_`x', lag(`lags')
+        }
+        else {
+            quietly regress _b_`x'
+        }
         matrix `beta' = nullmat(`beta'), e(b)
         matrix `VCV' = nullmat(`VCV'), e(V)
         local names `names' `x'
     }
 
     /* then intercept */
-    quietly newey _b_cons, lag(`lags')
+    if (`lags' > 0) {
+        quietly newey _b_cons, lag(`lags')
+    }
+    else {
+        quietly regress _b_cons
+    }
     matrix `beta' = nullmat(`beta'), e(b)
     matrix `VCV' = nullmat(`VCV'), e(V)
     local names `names' _cons
@@ -125,7 +147,7 @@ program define fm, eclass
     ereturn scalar T = `T'
     ereturn scalar r2_avg = `r2_avg'
     ereturn local cmd "fm"
-    ereturn local vce "Newey-West (1987) with `lags' lag"
+    ereturn local vce "Newey-West (1987) standard errors with `lags' lag"
     local title "Fama-Macbeth (1973) regression with Newey-West (1987) standard errors (`lags' lag)"
     ereturn local title `title'
 
