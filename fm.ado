@@ -1,11 +1,12 @@
-*! Date     : 2017-12-08
-*! version  : 0.11
+*! Date     : 2018-02-11
+*! version  : 0.12
 *! Author   : Richard Herron
 *! Email    : richard.c.herron@gmail.com
 
 *! takes coefficients from -statsby- and time/lags for Newey-West SEs
 
 /* 
+2017-12-08 v0.12 allow dummies
 2017-12-08 v0.11 after preserve, aggressively subset for speed
 2017-11-08 v0.10 added force option to force irregular time series
 2017-09-07 v0.9 allow abbreviation of options
@@ -22,7 +23,7 @@
 program define fm, eclass 
     version 13
 
-    syntax varlist [if] [in] [ , Estimator(string) Lags(integer 0) Options(string) Force ]
+    syntax varlist [if] [in] [ , Estimator(string) Lags(integer 0) Options(string) Keep(varlist) Force ]
     marksample touse
     tempname beta VCV
     
@@ -35,6 +36,7 @@ program define fm, eclass
     /* check panel and get time variable */
     quietly xtset
     local time `r(timevar)'
+    local panel `r(panelvar)'
 
     /* parse estimator, y, and X */
     tokenize `varlist'
@@ -44,7 +46,7 @@ program define fm, eclass
 
     /* subset data for faster cross-sectional regressions */
     preserve
-    keep `time' `y' `X' `touse'
+    keep `panel' `time' `y' `X' `keep' `touse'
     quietly drop if missing(`time', `y')
     if ("`X'" != "") {
         foreach x of local X {
@@ -69,7 +71,7 @@ program define fm, eclass
             : `estimator' `y' `X' `options'
 
         /* standardize prefixes */
-        if inlist("`estimator'", "logit", "logistic") {
+        if inlist("`estimator'", "probit", "logit", "logistic") {
             rename `y'_b* _b*
             rename _eq2_stat* _stat*
         }
@@ -95,15 +97,21 @@ program define fm, eclass
 
     /* first independent variables */
     foreach x of local X {
-        if (`lags' > 0) {
-            quietly newey _b_`x', lag(`lags')
-        }
-        else {
-            quietly regress _b_`x'
-        }
-        matrix `beta' = nullmat(`beta'), e(b)
-        matrix `VCV' = nullmat(`VCV'), e(V)
-        local names `names' `x'
+	capture confirm variable _b_`x'
+	if !_rc{
+		if (`lags' > 0) {
+		    quietly newey _b_`x', lag(`lags')
+		}
+		else {
+		    quietly regress _b_`x'
+		}
+		matrix `beta' = nullmat(`beta'), e(b)
+		matrix `VCV' = nullmat(`VCV'), e(V)
+		local names `names' `x'
+	}
+	else {
+		local X : subinstr local X "`x'" ""
+	}
     }
 
     /* then intercept */
