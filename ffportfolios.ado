@@ -1,22 +1,22 @@
-*! Date		: 2018-03-17
-*! version	: 0.1
+*! Date		: 2018-03-25
+*! version	: 0.2
 *! Author	: Richard Herron
 *! Email	: richard.c.herron@gmail.com
 
 *! get Fama-French portfolios from French Data Library
 
 /* {{{ version history
+2018-03-25 v0.2 added option to select one of ten data sections
 2018-03-18 v0.1 first upload to GitHub
 }}} */
 
 program define ffportfolios
 
 	version 13.1
-	syntax , clear [ KEEPfiles 5x5 10x10 ]
+	syntax , clear [ KEEPfiles 5x5 10x10 SECtion(integer 1) ]
 	
 	/* parameters */
 	local web "http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp"
-	local section = 1
 	
 	/* {{{ data sections in file
 		1--VW monthly returns
