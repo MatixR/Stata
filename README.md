@@ -1,6 +1,6 @@
 # Stata
 
-My Stata .ado files (and templates for starting a new Stata project).
+My Stata .ado files (and templates for starting new Stata projects).
 
 ## event_study
 
@@ -8,17 +8,14 @@ Converts WRDS event study output to CARs.
 
 ## fm
 
-Returns Fama-MacBeth (1973) time-series average coefficients with Newey-West (1987) standard errors based.
-First-stage estimator can be `regress`, `logit`, `logistic`, `probit`, or `tobit`,
-but the code is easily modifiable to new estimators.
+Returns Fama and MacBeth (1973) time-series average coefficients with Newey and West (1987) standard errors.
+First-stage estimator can be `regress`, `logit`, `logistic`, `probit`, or `tobit`, but the code is easily modifiable to new estimators.
 Compatible with [`estout`](http://repec.sowi.unibe.ch/stata/estout/).
 
 ### Examples
 
     fm y x1 x2, lag(4)
-
     fm d x1 x2, estimator(logit)
-
     fm y x1 x2, estimator(tobit) options(ll(0) ul(1))
 
 ### Tasks
@@ -63,6 +60,7 @@ Peek at head and tail of not-in-memory data.
 ## rolling_beta
 
 Quickly calculate rolling univariate regressions.
+See [`rangestat`](https://ideas.repec.org/c/boc/bocode/s458161.html) for a more general solution.
 
 ### Examples
 
@@ -75,39 +73,9 @@ Quickly calculate rolling univariate regressions.
 - [x] examples
 - [x] options for minimum # of observations
 
-## rolling_rho
-
-Quickly perform rolling correlations.
-
-### Examples
-
-    webuse grunfeld, clear
-    rolling_rho mvalue kstock, short(3) long(5)
-
-### Tasks
-
-- [ ] help file
-- [x] examples
-- [x] options for minimum # of observations
-
-## rolling_sigma
-
-Quickly perform rolling standard deviations.
-
-### Examples
-
-    webuse grunfeld, clear
-    rolling_sigma mvalue kstock, short(3) long(5)
-
-### Tasks
-
-- [ ] help file
-- [x] examples
-- [x] options for minimum # of observations
-
 ## time_transform
 
-Easy leads, lags, and differences with variable labels.
+Easy leads, lags, and differences plus variable labels.
 
 ### Examples
 
@@ -119,7 +87,6 @@ Easy leads, lags, and differences with variable labels.
 
 - [ ] help file
 - [x] examples
-- [x] options for minimum # of observations
 
 ## WRDS
 
@@ -129,7 +96,7 @@ See <https://github.com/wharton/wrds> for more information on .py script.
 
 ### Examples
 
-TBD.
+Todo.
 
 ### Tasks
 
